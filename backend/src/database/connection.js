@@ -1,15 +1,7 @@
-import mongoose from "mongoose"
-import "dotenv/config"
+import { createClient } from "@supabase/supabase-js";
+import "dotenv/config";
 
-const url = process.env.DB_URL;
+const supabaseUrl = process.env.DB_URL;
+const supabaseKey = process.env.DB_KEY;
 
-async function connectToDatabase(){
-  try{
-    await mongoose.connect(url);
-    console.log("Connected");
-  }catch(err){
-    console.error(err);
-  }
-}
-
-export const userSchema = new mongoose.Schema
+export const supabase = createClient(supabaseUrl, supabaseKey);
