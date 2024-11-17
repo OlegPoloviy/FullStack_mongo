@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { Users } from "../database/DTO/Users.js";
+import { Posts } from "../database/DTO/Posts.js";
 
 export const userRouter = Router();
 
@@ -30,5 +31,45 @@ userRouter.post("/login", async (req, res) => {
     res.status(200).send({ message: "Login successful", user });
   } catch (err) {
     res.status(401).send({ error: err.message });
+  }
+});
+
+userRouter.get("/posts", async (req, res) => {
+  try {
+    const posts = await Posts.getPosts();
+    res.send(posts);
+  } catch (err) {
+    res.status(500).send(err);
+  }
+});
+
+userRouter.post("/post", async (req, res) => {
+  try {
+    const data = req.body;
+    const post = await Posts.addPost(data);
+    res.send(post);
+  } catch (err) {
+    res.status(500).send(err);
+  }
+});
+
+userRouter.put("/post/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { title, body } = req.body;
+    const updatedPost = await Posts.updatePost(id, { title, body }); // Use updatePost here
+    res.send(updatedPost);
+  } catch (err) {
+    res.status(500).send({ error: err.message });
+  }
+});
+
+userRouter.delete("/post/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const deletedPost = await Posts.deletePost(id);
+    res.send(deletedPost);
+  } catch (err) {
+    res.status(500).send({ error: err.message });
   }
 });

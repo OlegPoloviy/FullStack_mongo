@@ -3,7 +3,6 @@ import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import "./LoginPage.css"; // Optional: add a CSS file for custom styling
 
-// Define the validation schema
 const validationSchema = Yup.object().shape({
   login: Yup.string()
     .min(3, "Username must be at least 3 characters")
@@ -27,7 +26,13 @@ const LoginForm = () => {
       });
 
       if (response.ok) {
-        setStatusMessage("Login successful!");
+        const userData = await response.json(); // Отримуємо дані користувача з відповіді
+        setStatusMessage(
+          `Login successful! Welcome, ${userData.user.login || userData.name}`
+        );
+        console.log("User data:", userData); // Виводимо дані користувача у консоль
+        localStorage.setItem("user", JSON.stringify(userData.user));
+        window.location.reload();
       } else {
         const result = await response.json();
         setStatusMessage(result.error || "Login failed. Please try again.");
