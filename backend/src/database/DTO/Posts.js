@@ -35,10 +35,31 @@ export class Posts {
     return data[0];
   }
 
-  static async deletePost(post_id) {
-    const { error } = await supabase.from("Posts").delete().eq("id", post_id);
-    if (error) {
-      throw new Error(`Error deleting post: ${error.message}`);
+  static async deletePost(post_id, user_id) {
+    // First check if the post belongs to the user trying to delete it
+    const { data, error: fetchError } = await supabase
+      .from("Posts")
+      .select("user_id")
+      .eq("id", post_id)
+      .single();
+
+    if (fetchError) {
+      throw new Error(`Error fetching post: ${fetchError.message}`);
+    }
+
+    // If the post doesn't belong to the user, don't allow deletion
+    if (data.user_id !== user_id) {
+      throw new Error("Unauthorized: You can only delete your own posts");
+    }
+
+    // If authorized, proceed with deletion
+    const { error: deleteError } = await supabase
+      .from("Posts")
+      .delete()
+      .eq("id", post_id);
+
+    if (deleteError) {
+      throw new Error(`Error deleting post: ${deleteError.message}`);
     }
   }
 }
